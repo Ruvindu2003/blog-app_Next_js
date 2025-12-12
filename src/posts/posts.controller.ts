@@ -9,7 +9,7 @@ export class PostsController {
     @Post()
     @UseGuards(AuthGuard('jwt'))
     create(@Body() createPostDto: any, @Request() req) {
-        return this.postsService.create(createPostDto, req.user);
+        return this.postsService.create(createPostDto, req.user.userId);
     }
 
     @Get()
@@ -35,8 +35,7 @@ export class PostsController {
     }
 
     @Delete(':id')
-    @UseGuards(AuthGuard('jwt'))
-    remove(@Param('id') id: string, @Request() req) {
-        return this.postsService.remove(+id, req.user.userId);
+    remove(@Param('id') id: string) {
+        return this.postsService.remove(+id, 0);
     }
 }
