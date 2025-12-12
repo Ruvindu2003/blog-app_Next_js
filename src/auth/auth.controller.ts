@@ -1,10 +1,14 @@
 import { Controller, Post, Body, UseGuards, Request, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
+import { UsersService } from '../users/users.service';
 
 @Controller('auth')
 export class AuthController {
-    constructor(private authService: AuthService) { }
+    constructor(
+        private authService: AuthService,
+        private usersService: UsersService,
+    ) { }
 
     @Post('register')
     async register(@Body() body) {
@@ -22,7 +26,13 @@ export class AuthController {
 
     @UseGuards(AuthGuard('jwt'))
     @Get('profile')
-    getProfile(@Request() req) {
+    async getProfile(@Request() req) {
+        // Fetch full user data from database
+        const user = await this.usersService.findById(req.user.userId);
+        if (user) {
+            const { password, ...result } = user;
+            return result;
+        }
         return req.user;
     }
 }
